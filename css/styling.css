@@ -1,0 +1,45 @@
+#buttons{
+
+    position: relative;
+    margin-top: 40px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#header{
+    font-size: 30px;
+    font-weight: 1000;
+    font-style: oblique;
+    text-align: center;
+    margin-bottom: 10px;
+
+    
+}
+
+body{    
+    background-color: darkgrey;
+}
+
+#myCanvas{
+    float: left;
+    position: relative;
+    border: 1px black solid;
+    text-align: center;
+}
+
+button{
+    font-style: italic;
+    height: 60px;
+    width: 90px;
+    font-family: sans-serif; 
+    font-weight: 100;
+    margin-left: 10px;
+    font-size: 30px;
+    text-shadow: 7px;
+}
+
+
+button:hover{
+    background-color: azure;
+}
