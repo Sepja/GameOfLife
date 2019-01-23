@@ -1,11 +1,23 @@
 <html>
     <head>
-        <title>Anika stinkt</title>
+        <title>Playground</title>
+        <script type="text/javascript" src="javascript/gameoflife.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/styling.css">
     </head>
-    <body>
+    <body onload="init();">
     
-    Test
+
+        <div id="header">Game of Life</div>
+      
+            <div id="buttons">
+            <button onclick="start();">start</button>
+            <button onclick="stop();">stop</button>
+        </div>
+        
+      <canvas id="myCanvas">
+        </canvas>
     
+
     </body>
 
 
