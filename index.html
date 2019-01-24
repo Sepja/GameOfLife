@@ -9,9 +9,13 @@
 
         <div id="header">Game of Life</div>
       
-            <div id="buttons">
-            <button onclick="start();">start</button>
+        <div id="buttons">
+            <input type="number" id="franerate" onchange="onFrameRateChanged();" >Frame Rate
+            <input type="number" id="height"style="display: none"  onchange="onHeightChanged();" value="Height">
+            <input type="number" id="width" style="display: none" onchange="onWidthChanged();" value="Width">
+        <button onclick="start();">start</button>
             <button onclick="stop();">stop</button>
+            <button onclick="clear();" style="display: none">clear</button>
         </div>
         
       <canvas id="myCanvas">

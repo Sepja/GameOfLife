@@ -1,4 +1,4 @@
-var cellSize = 10;
+var cellSize =2;
 var imgData;
 var ctx;
 var color = "ff00ff"
@@ -8,23 +8,27 @@ var height;
 var deathColor =  "#ffffff";
 var lifeColor =  "#000000";
 var intervalId;
+var framerate;
 function init(){
-
-    var c = document.getElementById("myCanvas");
-    ctx = c.getContext("2d"); 
-    c.width = 1000; 
-    c.height = 1000;
-    
     width= 1000;
     height= 1000;
+    framerate = 20;
+    var c = document.getElementById("myCanvas");
+    ctx = c.getContext("2d"); 
+    c.width = width; 
+    c.height = height;
+    document.getElementById("height").value=height;
+    document.getElementById("width").value=width;
+    document.getElementById("franerate").value=framerate;
+  
     init2dArray(lifeMap);
     renderMap(lifeMap);
 }
 
 function init2dArray(field){
-    for(var w = 0;w < width;w++){
+    for(var w = 0;w < width / cellSize;w++){
         field[w] = [];
-        for(var h = 0;h < height; h++){
+        for(var h = 0;h < height / cellSize; h++){
             field[w][h] = Math.floor(Math.random() * 2);
         }
     }
@@ -51,7 +55,7 @@ function start(){
         
         console.log(step1 - start + " calculate")
         console.log(step2 - step1 + " rendering")
-                },10)
+                },1000 / framerate)
     }
      
 }
@@ -73,7 +77,7 @@ function getDominantValue(field){
 
 function renderMap(lifeMap){
         var value = getDominantValue(lifeMap); 
-        var valueToRender = value == 0?0:1;
+        var valueToRender = value == 0?1:0;
         
     if(value == 1){
         ctx.fillStyle = lifeColor ;
@@ -84,7 +88,7 @@ function renderMap(lifeMap){
         for(var x = 0; x < lifeMap.length;x++){
             for(var y = 0;y < lifeMap[0].length;y++){
                 if(lifeMap[x][y] == valueToRender){
-                    ctx.fillStyle = valueToRender == 0?lifeColor:deathColor;
+                    ctx.fillStyle = valueToRender == 0?deathColor:lifeColor;
                     ctx.fillRect(Math.floor(x) * cellSize,Math.floor(y) * cellSize,cellSize,cellSize); 
                 }
             }
@@ -155,6 +159,28 @@ function stop(){
         clearInterval(intervalId);
         intervalId =null;
     }
+}
+
+function onFrameRateChanged(){
+    var userFrameRate =  Number.parseInt(document.getElementById("franerate").value);
+    if(isFrameRateValid(userFrameRate)){
+        framerate = userFrameRate;
+        stop();
+        start();
+    }
+
+}
+
+function isFrameRateValid(framerate){
+    return Number.isInteger(framerate) && framerate > 0;
+}
+
+function onHeightChanged(){
+    
+}
+
+function onWidthChanged(){
+    
 }
 
 function convertToHexSign(number){
