@@ -10,12 +10,14 @@
         <div id="header">Game of Life</div>
       
         <div id="buttons">
-            <input type="number" id="franerate" onchange="onFrameRateChanged();" >Frame Rate
+             <input type="range" min="1" max="150" value="50" class="slider" id="franerate" onchange="onFrameRateChanged();">
+            <div id="currentFramerate" >Frame Rate</div>
             <input type="number" id="height"style="display: none"  onchange="onHeightChanged();" value="Height">
             <input type="number" id="width" style="display: none" onchange="onWidthChanged();" value="Width">
-        <button onclick="start();">start</button>
-            <button onclick="stop();">stop</button>
-            <button onclick="clear();" style="display: none">clear</button>
+        <button onclick="start();">Start</button>
+            <button onclick="stop();">Stop</button>
+            <button onclick="clear();" style="display: none">Clear</button>
+            <button onclick="refresh();">Refresh</button>
         </div>
         
       <canvas id="myCanvas">

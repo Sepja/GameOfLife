@@ -1,4 +1,4 @@
-var cellSize =2;
+var cellSize =4;
 var imgData;
 var ctx;
 var color = "ff00ff"
@@ -12,7 +12,8 @@ var framerate;
 function init(){
     width= 1000;
     height= 1000;
-    framerate = 20;
+    framerate = 50;
+    updateCurrentFrameRate(framerate);
     var c = document.getElementById("myCanvas");
     ctx = c.getContext("2d"); 
     c.width = width; 
@@ -22,7 +23,12 @@ function init(){
     document.getElementById("franerate").value=framerate;
   
     init2dArray(lifeMap);
-    renderMap(lifeMap);
+    renderMap(lifeMap,null);
+}
+
+function refresh(){
+    init2dArray(lifeMap);
+    renderComplete(lifeMap);
 }
 
 function init2dArray(field){
@@ -35,26 +41,21 @@ function init2dArray(field){
     return field;
 }
 
-function colorCoordinate(x,y){
-     var randomColor = getRandomHexCode();
-    ctx.fillStyle = "#" + getRandomHexCode() ;
-    ctx.fillRect(Math.floor(x) * cellSize,Math.floor(y) * cellSize,cellSize,cellSize);   
-}
-
-
 function start(){
      
     if(intervalId == null){
         
    intervalId =  setInterval(function(){
         var start = new Date().getTime();
-        lifeMap = calculateNextStep(lifeMap);
+        newMap = calculateNextStep(lifeMap);
         var step1 = new Date().getTime();
-                   renderMap(lifeMap);   
+        //Performance Improvement because of rendering changed pixels
+        renderMap(lifeMap,newMap);   
+        lifeMap = newMap;
         var step2 = new Date().getTime();
         
-        console.log(step1 - start + " calculate")
-        console.log(step2 - step1 + " rendering")
+        console.log(step1 - start + "ms calculating next step.")
+        console.log(step2 - step1 + "ms rendering picture")
                 },1000 / framerate)
     }
      
@@ -75,26 +76,59 @@ function getDominantValue(field){
     return count0 > count1? 0:1;
 }
 
-function renderMap(lifeMap){
-        var value = getDominantValue(lifeMap); 
+function renderMap(oldMap,newMap){
+        if(newMap ==null){
+            renderComplete(oldMap);
+        }else{
+            //optimistic calculation no change of mapsize
+            var minWidthOfMaps = min(oldMap.length,newMap.length);
+            var minHeightOfMaps = min(oldMap[0].length,newMap[0].length);
+            
+            for(var width = 0;width < minWidthOfMaps;width++){
+                for(var height = 0;height< minHeightOfMaps;height++){
+                    //compare each cell of the map
+                    //if not the same take the color of the new Map
+                    if(oldMap[width][height] != newMap[width][height]){
+                         colorField(width,height,getColor(newMap[width][height])); 
+                    }
+                }
+            }
+        }
+}
+
+function min(number1,number2){
+    return number1 > number2?number2:number1;
+}
+
+
+function renderComplete(lifeMap){
+      var value = getDominantValue(lifeMap); 
         var valueToRender = value == 0?1:0;
         
-    if(value == 1){
-        ctx.fillStyle = lifeColor ;
-    }else{
+        if(value == 1){
+          ctx.fillStyle = lifeColor ;
+        }else{
         ctx.fillStyle = deathColor ;
-    }
+        }
         ctx.fillRect(0,0,width,height); 
         for(var x = 0; x < lifeMap.length;x++){
             for(var y = 0;y < lifeMap[0].length;y++){
                 if(lifeMap[x][y] == valueToRender){
-                    ctx.fillStyle = valueToRender == 0?deathColor:lifeColor;
-                    ctx.fillRect(Math.floor(x) * cellSize,Math.floor(y) * cellSize,cellSize,cellSize); 
+                    colorField(x,y,getColor(valueToRender));
                 }
             }
         }    
-
 }
+
+function getColor(fieldValue){
+    return fieldValue == 0?deathColor:lifeColor;
+}
+
+function colorField(x,y,color){
+              ctx.fillStyle = color;
+              ctx.fillRect(Math.floor(x) * cellSize,Math.floor(y) * cellSize,cellSize,cellSize); 
+}
+
 function calculateNextStep(field){
     var result = [[]];
     init2dArray(result);
@@ -145,15 +179,7 @@ function fieldSizeIsAtleast3By3(field){
     
     return false;
 }
-function getRandomHexCode(){
-    var hex = "";
-    for(var i = 0; i < 6;i++){
-        var randomNumber = Math.random()  * 16;
-        hex = hex + convertToHexSign(randomNumber);
-        
-    }
-    return hex;
-}
+
 function stop(){
     if(intervalId != null){
         clearInterval(intervalId);
@@ -164,6 +190,8 @@ function stop(){
 function onFrameRateChanged(){
     var userFrameRate =  Number.parseInt(document.getElementById("franerate").value);
     if(isFrameRateValid(userFrameRate)){
+        updateCurrentFrameRate(userFrameRate);
+        
         framerate = userFrameRate;
         stop();
         start();
@@ -171,31 +199,22 @@ function onFrameRateChanged(){
 
 }
 
+function updateCurrentFrameRate(framerate){
+    document.getElementById("currentFramerate").innerHTML = "Current Framerate: " + framerate;
+}
+
 function isFrameRateValid(framerate){
     return Number.isInteger(framerate) && framerate > 0;
 }
 
 function onHeightChanged(){
-    
+   var userHeight =  Number.parseInt(document.getElementById("height").value); 
+    if(userHeight > 0){
+        height = userHeight;
+    }
 }
 
 function onWidthChanged(){
     
 }
 
-function convertToHexSign(number){
-    number = Math.floor(number);
-    if(number < 10){
-        return number;
-    }else{
-        number -= 9;
-        switch(number){
-            case 1:return 'a';
-            case 2:return 'b';
-            case 3:return 'c';
-            case 4:return 'd';
-            case 5:return 'e';
-            case 6:return 'f';     
-        }
-    }
-}
