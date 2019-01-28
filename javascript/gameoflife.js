@@ -2,28 +2,38 @@ var cellSize =4;
 var imgData;
 var ctx;
 var color = "ff00ff"
+var lastMap;
 var lifeMap = [[]];
-var width;
-var height;
+var mapWidth;
+var mapHeight;
 var deathColor =  "#ffffff";
 var lifeColor =  "#000000";
 var intervalId;
 var framerate;
+var canvas;
 function init(){
-    width= 1000;
-    height= 1000;
+    mapWidth = 500;
+    mapHeight= 500;
     framerate = 50;
     updateCurrentFrameRate(framerate);
-    var c = document.getElementById("myCanvas");
-    ctx = c.getContext("2d"); 
-    c.width = width; 
-    c.height = height;
-    document.getElementById("height").value=height;
-    document.getElementById("width").value=width;
+    canvas = document.getElementById("myCanvas");
+    ctx = canvas.getContext("2d"); 
+    canvas.width = mapWidth; 
+    canvas.height = mapHeight;
+    document.getElementById("heightSlider").value=mapHeight;
+    document.getElementById("widthSlider").value=mapWidth;
     document.getElementById("franerate").value=framerate;
+    document.getElementById("cellSizeSlider").value=cellSize;
   
     init2dArray(lifeMap);
     renderMap(lifeMap,null);
+    displayCellSize();
+    displayWidth();
+    displayHeight();
+}
+
+function draw(){
+    
 }
 
 function refresh(){
@@ -32,9 +42,10 @@ function refresh(){
 }
 
 function init2dArray(field){
-    for(var w = 0;w < width / cellSize;w++){
+    for(var w = 0;w < mapWidth
+       ;w++){
         field[w] = [];
-        for(var h = 0;h < height / cellSize; h++){
+        for(var h = 0;h < mapHeight; h++){
             field[w][h] = Math.floor(Math.random() * 2);
         }
     }
@@ -80,15 +91,16 @@ function renderMap(oldMap,newMap){
         if(newMap ==null){
             renderComplete(oldMap);
         }else{
-            //optimistic calculation no change of mapsize
             var minWidthOfMaps = min(oldMap.length,newMap.length);
             var minHeightOfMaps = min(oldMap[0].length,newMap[0].length);
             
-            for(var width = 0;width < minWidthOfMaps;width++){
-                for(var height = 0;height< minHeightOfMaps;height++){
+            for(var width = 0;width < canvas.width/cellSize;width++){
+                for(var height = 0;height< canvas.height/cellSize;height++){
                     //compare each cell of the map
                     //if not the same take the color of the new Map
-                    if(oldMap[width][height] != newMap[width][height]){
+                    if(isSafeAccess(oldMap,width,height)
+                       && isSafeAccess(newMap,width,height)
+                        && oldMap[width][height] != newMap[width][height]){
                          colorField(width,height,getColor(newMap[width][height])); 
                     }
                 }
@@ -102,7 +114,7 @@ function min(number1,number2){
 
 
 function renderComplete(lifeMap){
-      var value = getDominantValue(lifeMap); 
+        var value = getDominantValue(lifeMap); 
         var valueToRender = value == 0?1:0;
         
         if(value == 1){
@@ -110,14 +122,18 @@ function renderComplete(lifeMap){
         }else{
         ctx.fillStyle = deathColor ;
         }
-        ctx.fillRect(0,0,width,height); 
-        for(var x = 0; x < lifeMap.length;x++){
-            for(var y = 0;y < lifeMap[0].length;y++){
-                if(lifeMap[x][y] == valueToRender){
+        ctx.fillRect(0,0,canvas.width ,canvas.height); 
+        for(var x = 0; x < canvas.width;x++){
+            for(var y = 0;y < canvas.height;y++){
+                if(isSafeAccess(lifeMap,x,y) && lifeMap[x][y] == valueToRender){
                     colorField(x,y,getColor(valueToRender));
                 }
             }
         }    
+}
+
+function isSafeAccess(lifeMap,x,y){
+    return lifeMap[x] != null && lifeMap[x][y] != null;
 }
 
 function getColor(fieldValue){
@@ -137,20 +153,20 @@ function calculateNextStep(field){
             for(var y = 0;y < field[0].length;y++){
                 var currentField = field[x][y];
                 var countNeighbours =  determineLivingNeighbours(field,x,y);
-                if(countNeighbours == 3){
-                    result[x][y] = 1;
-                }else if(countNeighbours == 2 && currentField == 1){
+                if(countNeighbours == 3 || (countNeighbours == 2 && currentField == 1)){
                     result[x][y] = 1;
                 }else{
                     result[x][y] = 0;
                 }
             }
         }
+        lastMap = field;
         return result;
     }else{
         return field;
     }
 }
+
 
 function determineLivingNeighbours(field,x,y){
     var result = 0;
@@ -193,14 +209,16 @@ function onFrameRateChanged(){
         updateCurrentFrameRate(userFrameRate);
         
         framerate = userFrameRate;
-        stop();
-        start();
+        if(intervalId != null){   
+            stop();
+            start();
+        }
     }
 
 }
 
 function updateCurrentFrameRate(framerate){
-    document.getElementById("currentFramerate").innerHTML = "Current Framerate: " + framerate;
+    document.getElementById("currentFramerate").innerHTML = "Framerate " + framerate;
 }
 
 function isFrameRateValid(framerate){
@@ -208,13 +226,41 @@ function isFrameRateValid(framerate){
 }
 
 function onHeightChanged(){
-   var userHeight =  Number.parseInt(document.getElementById("height").value); 
+   var userHeight =  Number.parseInt(document.getElementById("heightSlider").value); 
     if(userHeight > 0){
-        height = userHeight;
+        canvas.height = userHeight;
+        renderComplete(lifeMap);
     }
 }
 
 function onWidthChanged(){
-    
+    var userWidth =  Number.parseInt(document.getElementById("widthSlider").value); 
+    if(userWidth > 0){
+        canvas.width = userWidth;
+        renderComplete(lifeMap);
+    }
+  
 }
 
+function displayCellSize(){
+        var cs =  Number.parseInt(document.getElementById("cellSizeSlider").value);
+        document.getElementById("cellSizeDisplay").innerHTML = "Cellsize " + cs;
+}function displayWidth(){
+        var currentWidth =  Number.parseInt(document.getElementById("widthSlider").value);
+        document.getElementById("widthDisplay").innerHTML = "Width " + currentWidth;
+}function displayHeight(){
+        var currentHeight =  Number.parseInt(document.getElementById("heightSlider").value);
+        document.getElementById("heightDisplay").innerHTML = "Height " + currentHeight;
+     
+}
+                          
+function onCellSizeChanged(){
+     cellSize =  Number.parseInt(document.getElementById("cellSizeSlider").value);
+    //old rendered picture should be cleared.
+    renderComplete(lifeMap);
+}
+
+function clearCanvas(){
+      ctx.fillStyle = deathColor;
+      ctx.fillRect(0,0,Number.parseInt(canvas.width),Number.parseInt(canvas.height)); 
+}
