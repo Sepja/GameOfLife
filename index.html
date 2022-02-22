@@ -1,43 +1,24 @@
 <html>
-    <head>
-        <title>Playground</title>
-        <script type="text/javascript" src="javascript/gameoflife.js"></script>
-        <link rel="stylesheet" type="text/css" href="css/styling.css">
-    </head>
-    <body onload="init();">
-    
-
-        <div id="header">Game of Life</div>
-      
-        <div id="buttons">
-              <div class="sliderWithName">
-               <div id="currentFramerate" >Frame Rate</div>  <input type="range" min="1" max="150" value="50" class="slider" id="franerate" oninput="onFrameRateChanged();">
-            </div> 
-           
-            <div class="sliderWithName">
-                 <div id="heightDisplay">Height 0</div><input type="range" min="10" max="2000" value="2000" class="slider" id="heightSlider" onchange="onHeightChanged();" oninput="displayHeight();">
-            </div> 
-            <div class="sliderWithName">
-                <div id="widthDisplay">Width 0</div> <input type="range" min="10" max="2000" value="2000" class="slider" id="widthSlider" onchange="onWidthChanged();" oninput="displayWidth();">
-            </div> <div class="sliderWithName">
-                <div id="cellSizeDisplay">Cellsize 0</div> <input type="range" min="1" max="25" value="4" class="slider" id="cellSizeSlider" onchange="onCellSizeChanged();" oninput="displayCellSize();">
-            </div>
-             
-            
-             
-            <button onclick="start();">Start</button>
-            <button onclick="stop();">Stop</button>
-            <button onclick="clearCanvas();">Clear</button>
-            <button onclick="refresh();">Refresh</button>
-        </div>
-        
-      <canvas id="myCanvas">
-        </canvas>
-    
-
-    </body>
+<head>
+    <title>Game Of Life</title>
+    <script type="text/javascript" src="javascript/gameoflife.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/styling.css">
+</head>
+<body onload="init();">
 
 
+<div id="header">Game of Life</div>
+
+    <div id="actionMenu">
+        <button class="button" title="Start" onclick="start();">Start</button>
+        <button class="button" onclick="nextTick();">Next Tick</button>
+        <button class="button" onclick="stop();">Stop</button>
+        <button class="button" onclick="createRandomPattern();">Random</button>
+        <button class="button" onclick="clearCanvas();">Clear</button>
+    </div>
+
+<canvas id="myCanvas"/>
+</body>
 
 
 </html>
